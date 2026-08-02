@@ -59,6 +59,7 @@ fun BookPlayScreen(bookId: BookId) {
   BookPlayView(
     viewState,
     bookId = bookId,
+    captionsFullscreen = viewModel.captionsFullscreen.value,
     onPlayClick = viewModel::playPause,
     onFastForwardClick = viewModel::fastForward,
     onRewindClick = viewModel::rewind,
@@ -70,6 +71,8 @@ fun BookPlayScreen(bookId: BookId) {
     onVolumeBoostClick = viewModel::onVolumeGainIconClick,
     onSpeedChangeClick = viewModel::onPlaybackSpeedIconClick,
     onCaptionsClick = viewModel::onCaptionsIconClick,
+    onCaptionsFullscreenClick = viewModel::openCaptionsFullscreen,
+    onCaptionsFullscreenClose = viewModel::closeCaptionsFullscreen,
     onCloseClick = viewModel::onCloseClick,
     onSkipToNext = viewModel::next,
     onSkipToPrevious = viewModel::previous,
@@ -103,6 +106,8 @@ fun BookPlayScreen(bookId: BookId) {
           dialogState = dialogState,
           onDismiss = viewModel::dismissDialog,
           onTrackSelected = viewModel::onCaptionTrackSelected,
+          onTextSizeSelected = viewModel::onCaptionTextSizeSelected,
+          onFontSelected = viewModel::onCaptionFontSelected,
         )
       }
     }

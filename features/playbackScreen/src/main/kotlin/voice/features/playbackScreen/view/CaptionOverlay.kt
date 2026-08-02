@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +21,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import voice.core.data.CaptionStylePreference
+import voice.features.playbackScreen.captions.overlayTextStyle
 
 /**
  * Holds the last non-empty cue briefly so short gaps between subtitle samples
@@ -37,6 +38,7 @@ internal fun stableCaptionText(
 @Composable
 internal fun CaptionOverlay(
   text: String?,
+  style: CaptionStylePreference = CaptionStylePreference.Default,
   modifier: Modifier = Modifier,
   clearDelayMs: Long = 300,
 ) {
@@ -66,7 +68,7 @@ internal fun CaptionOverlay(
     if (!shown.isNullOrBlank()) {
       Text(
         text = shown,
-        style = MaterialTheme.typography.bodyLarge,
+        style = style.overlayTextStyle(),
         color = Color.White,
         textAlign = TextAlign.Center,
         maxLines = 3,

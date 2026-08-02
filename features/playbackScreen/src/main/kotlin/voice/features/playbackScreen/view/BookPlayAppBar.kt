@@ -32,6 +32,7 @@ internal fun BookPlayAppBar(
   onSkipSilenceClick: () -> Unit,
   onVolumeBoostClick: () -> Unit,
   onCaptionsClick: () -> Unit,
+  onCaptionsFullscreenClick: () -> Unit,
   onCloseClick: () -> Unit,
   useLandscapeLayout: Boolean,
 ) {
@@ -79,6 +80,14 @@ internal fun BookPlayAppBar(
           } else {
             LocalContentColor.current
           },
+        )
+      }
+    }
+    if (viewState.captionsEnabled) {
+      IconButton(onClick = onCaptionsFullscreenClick) {
+        Icon(
+          imageVector = VoiceIcons.OpenInFull,
+          contentDescription = stringResource(id = R.string.playback_captions_fullscreen_open),
         )
       }
     }

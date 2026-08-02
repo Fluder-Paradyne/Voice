@@ -19,12 +19,16 @@ import voice.core.common.DispatcherProvider
 import voice.core.common.MainScope
 import voice.core.data.Book
 import voice.core.data.BookId
+import voice.core.data.CaptionFont
+import voice.core.data.CaptionStylePreference
+import voice.core.data.CaptionTextSize
 import voice.core.data.KioskModeDemoData
 import voice.core.data.durationMs
 import voice.core.data.markForPosition
 import voice.core.data.repo.BookRepository
 import voice.core.data.repo.BookmarkRepo
 import voice.core.data.sleeptimer.SleepTimerPreference
+import voice.core.data.store.CaptionStyleStore
 import voice.core.data.store.CurrentBookStore
 import voice.core.data.store.SleepTimerPreferenceStore
 import voice.core.featureflag.ExperimentalPlaybackPersistenceQualifier
@@ -68,6 +72,8 @@ class BookPlayViewModel(
   dispatcherProvider: DispatcherProvider,
   @SleepTimerPreferenceStore
   private val sleepTimerPreferenceStore: DataStore<SleepTimerPreference>,
+  @CaptionStyleStore
+  private val captionStyleStore: DataStore<CaptionStylePreference>,
   @ExperimentalPlaybackPersistenceQualifier
   private val experimentalPlaybackPersistenceFeatureFlag: FeatureFlag<Boolean>,
   @KioskModeFeatureFlagQualifier
@@ -83,6 +89,9 @@ class BookPlayViewModel(
 
   internal val dialogState: State<BookPlayDialogViewState?>
     field = mutableStateOf<BookPlayDialogViewState?>(null)
+
+  internal val captionsFullscreen: State<Boolean>
+    field = mutableStateOf(false)
 
   init {
     scope.launch {
@@ -130,6 +139,9 @@ class BookPlayViewModel(
     val captionsState by remember {
       player.captionsStateFlow()
     }.collectAsState(initial = CaptionsState.Empty)
+    val captionStyle by remember {
+      captionStyleStore.data
+    }.collectAsState(initial = CaptionStylePreference.Default)
     val hasMoreThanOneChapter = book.chapters.sumOf { it.chapterMarks.count() } > 1
     return BookPlayViewState(
       sleepTimerState = sleepTime.toViewState(),
@@ -144,6 +156,7 @@ class BookPlayViewModel(
       showCaptionsButton = captionsState.tracks.isNotEmpty(),
       captionsEnabled = captionsState.selectedTrackId != null,
       captionText = captionsState.currentCueText,
+      captionStyle = captionStyle,
     )
   }
 
@@ -381,18 +394,53 @@ class BookPlayViewModel(
     scope.launch {
       val captions = player.captionsStateFlow().first()
       if (captions.tracks.isEmpty()) return@launch
+      val style = captionStyleStore.data.first()
       dialogState.value = BookPlayDialogViewState.Captions(
         tracks = captions.tracks.map {
           BookPlayDialogViewState.Captions.Item(id = it.id, label = it.label)
         },
         selectedTrackId = captions.selectedTrackId,
+        style = style,
       )
     }
   }
 
   fun onCaptionTrackSelected(trackId: String?) {
     player.setCaptionsTrack(trackId)
-    dialogState.value = null
+    // Keep the sheet open when only changing style; closing happens for track pick via UI.
+    if (dialogState.value is BookPlayDialogViewState.Captions) {
+      dialogState.value = null
+    }
+    if (trackId == null) {
+      captionsFullscreen.value = false
+    }
+  }
+
+  fun onCaptionTextSizeSelected(size: CaptionTextSize) {
+    scope.launch {
+      captionStyleStore.updateData { it.copy(size = size) }
+      refreshCaptionsDialogStyle()
+    }
+  }
+
+  fun onCaptionFontSelected(font: CaptionFont) {
+    scope.launch {
+      captionStyleStore.updateData { it.copy(font = font) }
+      refreshCaptionsDialogStyle()
+    }
+  }
+
+  private suspend fun refreshCaptionsDialogStyle() {
+    val current = dialogState.value as? BookPlayDialogViewState.Captions ?: return
+    dialogState.value = current.copy(style = captionStyleStore.data.first())
+  }
+
+  fun openCaptionsFullscreen() {
+    captionsFullscreen.value = true
+  }
+
+  fun closeCaptionsFullscreen() {
+    captionsFullscreen.value = false
   }
 
   private suspend fun currentBook(): Book? {

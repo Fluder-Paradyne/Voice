@@ -187,6 +187,22 @@
     <string name="playback.captions.off">Off</string>
     <!-- Fallback label for an unnamed caption track. -->
     <string name="playback.captions.track">Track %1$d</string>
+    <!-- Content description for opening captions-only fullscreen. -->
+    <string name="playback.captions.fullscreen.open">Fullscreen captions</string>
+    <!-- Content description for leaving captions-only fullscreen. -->
+    <string name="playback.captions.fullscreen.close">Close fullscreen captions</string>
+    <!-- Section title for caption text size options. -->
+    <string name="playback.captions.style.size">Text size</string>
+    <!-- Section title for caption font options. -->
+    <string name="playback.captions.style.font">Font</string>
+    <string name="playback.captions.style.size.small">Small</string>
+    <string name="playback.captions.style.size.medium">Medium</string>
+    <string name="playback.captions.style.size.large">Large</string>
+    <string name="playback.captions.style.size.extra_large">Extra large</string>
+    <string name="playback.captions.style.font.sans">Sans</string>
+    <string name="playback.captions.style.font.serif">Serif</string>
+    <string name="playback.captions.style.font.monospace">Monospace</string>
+    <string name="playback.captions.style.font.opendyslexic">OpenDyslexic</string>
     <!-- Negative button for cancelling feedback. -->
     <string name="review.feedback.action.cancel" tools:ignore="UnusedResources">Cancel</string>
     <!-- Positive button for sending feedback. -->

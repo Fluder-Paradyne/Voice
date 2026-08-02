@@ -19,6 +19,7 @@ internal fun BookPlayView(
   viewState: BookPlayViewState,
   bookId: BookId,
   useLandscapeLayout: Boolean,
+  captionsFullscreen: Boolean,
   onPlayClick: () -> Unit,
   onRewindClick: () -> Unit,
   onFastForwardClick: () -> Unit,
@@ -30,12 +31,24 @@ internal fun BookPlayView(
   onSkipSilenceClick: () -> Unit,
   onVolumeBoostClick: () -> Unit,
   onCaptionsClick: () -> Unit,
+  onCaptionsFullscreenClick: () -> Unit,
+  onCaptionsFullscreenClose: () -> Unit,
   onSkipToNext: () -> Unit,
   onSkipToPrevious: () -> Unit,
   onCloseClick: () -> Unit,
   onCurrentChapterClick: () -> Unit,
   snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
+  if (captionsFullscreen) {
+    FullscreenCaptions(
+      captionText = viewState.captionText,
+      style = viewState.captionStyle,
+      onClose = onCaptionsFullscreenClose,
+      onPlayPause = onPlayClick,
+    )
+    return
+  }
+
   Scaffold(
     snackbarHost = {
       SnackbarHost(hostState = snackbarHostState)
@@ -50,6 +63,7 @@ internal fun BookPlayView(
         onSkipSilenceClick = onSkipSilenceClick,
         onVolumeBoostClick = onVolumeBoostClick,
         onCaptionsClick = onCaptionsClick,
+        onCaptionsFullscreenClick = onCaptionsFullscreenClick,
         onCloseClick = onCloseClick,
         useLandscapeLayout = useLandscapeLayout,
       )
@@ -66,6 +80,7 @@ internal fun BookPlayView(
         onSkipToNext = onSkipToNext,
         onSkipToPrevious = onSkipToPrevious,
         onCurrentChapterClick = onCurrentChapterClick,
+        onCaptionsFullscreenClick = onCaptionsFullscreenClick,
         useLandscapeLayout = useLandscapeLayout,
       )
     },
@@ -82,6 +97,7 @@ private fun BookPlayPreview(
     BookPlayView(
       viewState = viewState,
       bookId = BookId("preview"),
+      captionsFullscreen = false,
       onPlayClick = {},
       onRewindClick = {},
       onFastForwardClick = {},
@@ -93,6 +109,8 @@ private fun BookPlayPreview(
       onSkipSilenceClick = {},
       onVolumeBoostClick = {},
       onCaptionsClick = {},
+      onCaptionsFullscreenClick = {},
+      onCaptionsFullscreenClose = {},
       onSkipToNext = {},
       onSkipToPrevious = {},
       onCloseClick = {},

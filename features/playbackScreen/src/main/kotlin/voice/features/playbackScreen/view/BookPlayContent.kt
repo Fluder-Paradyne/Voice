@@ -1,5 +1,6 @@
 package voice.features.playbackScreen.view
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,6 +29,7 @@ internal fun BookPlayContent(
   onSkipToNext: () -> Unit,
   onSkipToPrevious: () -> Unit,
   onCurrentChapterClick: () -> Unit,
+  onCaptionsFullscreenClick: () -> Unit,
   useLandscapeLayout: Boolean,
 ) {
   if (useLandscapeLayout) {
@@ -61,7 +63,10 @@ internal fun BookPlayContent(
           Spacer(modifier = Modifier.size(12.dp))
           CaptionOverlay(
             text = viewState.captionText,
-            modifier = Modifier.padding(horizontal = 16.dp),
+            style = viewState.captionStyle,
+            modifier = Modifier
+              .padding(horizontal = 16.dp)
+              .clickable(onClick = onCaptionsFullscreenClick),
           )
         }
         Spacer(modifier = Modifier.size(20.dp))
@@ -105,7 +110,10 @@ internal fun BookPlayContent(
         Spacer(modifier = Modifier.size(12.dp))
         CaptionOverlay(
           text = viewState.captionText,
-          modifier = Modifier.padding(horizontal = 16.dp),
+          style = viewState.captionStyle,
+          modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .clickable(onClick = onCaptionsFullscreenClick),
         )
       }
       Spacer(modifier = Modifier.size(20.dp))

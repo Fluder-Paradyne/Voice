@@ -3193,4 +3193,48 @@ object VoiceIcons {
           }
         }
         .build()
+
+  /*
+   * Source: https://fonts.gstatic.com/render/v1/Material+Symbols+Outlined/24dp/open_in_full.kt
+   * Generated manually for captions fullscreen
+   */
+  val OpenInFull: ImageVector =
+      ImageVector.Builder(
+          name = "OpenInFull",
+          defaultWidth = 24.dp,
+          defaultHeight = 24.dp,
+          viewportWidth = 24f,
+          viewportHeight = 24f,
+        )
+        .apply {
+          path(
+            fill = SolidColor(Color.Black),
+            fillAlpha = 1f,
+            stroke = null,
+            strokeAlpha = 1f,
+            strokeLineWidth = 1f,
+            strokeLineCap = StrokeCap.Butt,
+            strokeLineJoin = StrokeJoin.Bevel,
+            strokeLineMiter = 1f,
+            pathFillType = PathFillType.NonZero,
+          ) {
+            moveTo(3f, 21f)
+            verticalLineTo(13f)
+            horizontalLineTo(5f)
+            verticalLineToRelative(4.6f)
+            lineTo(17.6f, 5f)
+            horizontalLineTo(13f)
+            verticalLineTo(3f)
+            horizontalLineToRelative(8f)
+            verticalLineToRelative(8f)
+            horizontalLineTo(19f)
+            verticalLineTo(6.4f)
+            lineTo(6.4f, 19f)
+            horizontalLineTo(11f)
+            verticalLineToRelative(2f)
+            horizontalLineTo(3f)
+            close()
+          }
+        }
+        .build()
 }

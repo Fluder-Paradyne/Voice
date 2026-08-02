@@ -21,6 +21,7 @@ import voice.core.data.Book
 import voice.core.data.BookContent
 import voice.core.data.BookId
 import voice.core.data.Bookmark
+import voice.core.data.CaptionStylePreference
 import voice.core.data.Chapter
 import voice.core.data.ChapterId
 import voice.core.data.KioskModeDemoData
@@ -109,6 +110,7 @@ class BookPlayViewModelTest {
     volumeGainFormatter = mockk(),
     batteryOptimization = mockk(),
     sleepTimerPreferenceStore = sleepTimerDataStore,
+    captionStyleStore = MemoryDataStore(CaptionStylePreference.Default),
     bookId = book.id,
     dispatcherProvider = DispatcherProvider(scope.coroutineContext, scope.coroutineContext, scope.coroutineContext),
     experimentalPlaybackPersistenceFeatureFlag = MemoryFeatureFlag(false),
@@ -353,6 +355,7 @@ class BookPlayViewModelTest {
       volumeGainFormatter = mockk(),
       batteryOptimization = mockk(),
       sleepTimerPreferenceStore = sleepTimerDataStore,
+      captionStyleStore = MemoryDataStore(CaptionStylePreference.Default),
       bookId = book.id,
       dispatcherProvider = DispatcherProvider(scope.coroutineContext, scope.coroutineContext, scope.coroutineContext),
       experimentalPlaybackPersistenceFeatureFlag = MemoryFeatureFlag(experimentalPlaybackPersistence),

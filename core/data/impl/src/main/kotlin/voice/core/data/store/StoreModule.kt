@@ -14,6 +14,7 @@ import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.builtins.serializer
 import voice.core.data.BookId
+import voice.core.data.CaptionStylePreference
 import voice.core.data.GridMode
 import voice.core.data.ThemeColorScheme
 import voice.core.data.ThemeMode
@@ -202,6 +203,17 @@ public interface StoreModule {
       serializer = MapSerializer(String.serializer(), FeatureFlagOverride.serializer()),
       defaultValue = emptyMap(),
       fileName = "featureFlagOverrides",
+    )
+  }
+
+  @Provides
+  @SingleIn(AppScope::class)
+  @CaptionStyleStore
+  private fun captionStyle(factory: VoiceDataStoreFactory): DataStore<CaptionStylePreference> {
+    return factory.create(
+      serializer = CaptionStylePreference.serializer(),
+      fileName = "captionStyle",
+      defaultValue = CaptionStylePreference.Default,
     )
   }
 }
