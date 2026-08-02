@@ -181,6 +181,12 @@
     <string name="playback.option.volume_boost">Volume boost</string>
     <!-- Title and content description for playback-speed controls. -->
     <string name="playback.speed.title">Playback speed</string>
+    <!-- Content description and bottom-sheet title for captions controls. -->
+    <string name="playback.captions.title">Captions</string>
+    <!-- Bottom-sheet option that disables captions. -->
+    <string name="playback.captions.off">Off</string>
+    <!-- Fallback label for an unnamed caption track. -->
+    <string name="playback.captions.track">Track %1$d</string>
     <!-- Negative button for cancelling feedback. -->
     <string name="review.feedback.action.cancel" tools:ignore="UnusedResources">Cancel</string>
     <!-- Positive button for sending feedback. -->

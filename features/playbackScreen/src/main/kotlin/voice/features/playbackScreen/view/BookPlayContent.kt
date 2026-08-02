@@ -57,6 +57,13 @@ internal fun BookPlayContent(
             onCurrentChapterClick = onCurrentChapterClick,
           )
         }
+        viewState.captionText?.let { captionText ->
+          Spacer(modifier = Modifier.size(12.dp))
+          CaptionOverlay(
+            text = captionText,
+            modifier = Modifier.padding(horizontal = 16.dp),
+          )
+        }
         Spacer(modifier = Modifier.size(20.dp))
         SliderRow(
           duration = viewState.duration,
@@ -92,6 +99,13 @@ internal fun BookPlayContent(
           onSkipToNext = onSkipToNext,
           onSkipToPrevious = onSkipToPrevious,
           onCurrentChapterClick = onCurrentChapterClick,
+        )
+      }
+      viewState.captionText?.let { captionText ->
+        Spacer(modifier = Modifier.size(12.dp))
+        CaptionOverlay(
+          text = captionText,
+          modifier = Modifier.padding(horizontal = 16.dp),
         )
       }
       Spacer(modifier = Modifier.size(20.dp))

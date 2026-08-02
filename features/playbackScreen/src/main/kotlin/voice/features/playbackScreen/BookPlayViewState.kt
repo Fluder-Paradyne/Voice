@@ -16,6 +16,9 @@ data class BookPlayViewState(
   val playing: Boolean,
   val cover: String?,
   val skipSilence: Boolean,
+  val showCaptionsButton: Boolean = false,
+  val captionsEnabled: Boolean = false,
+  val captionText: String? = null,
 ) {
 
   sealed interface SleepTimerViewState {
@@ -60,4 +63,14 @@ internal sealed interface BookPlayDialogViewState {
 
   @JvmInline
   value class SleepTimer(val viewState: SleepTimerViewState) : BookPlayDialogViewState
+
+  data class Captions(
+    val tracks: List<Item>,
+    val selectedTrackId: String?,
+  ) : BookPlayDialogViewState {
+    data class Item(
+      val id: String,
+      val label: String,
+    )
+  }
 }

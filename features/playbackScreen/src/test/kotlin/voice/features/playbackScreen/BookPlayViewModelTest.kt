@@ -30,6 +30,7 @@ import voice.core.featureflag.MemoryFeatureFlag
 import voice.core.playback.CurrentBookResolver
 import voice.core.playback.LivePlaybackState
 import voice.core.playback.PlayerController
+import voice.core.playback.captions.CaptionsState
 import voice.core.playback.overlay
 import voice.core.playback.playstate.PlayStateManager
 import voice.core.sleeptimer.SleepTimer
@@ -87,6 +88,8 @@ class BookPlayViewModelTest {
     currentBookResolver = currentBookResolver,
     player = player.apply {
       every { pauseIfCurrentBookDifferentFrom(book.id) } just Runs
+      every { captionsStateFlow() } returns MutableStateFlow(CaptionsState.Empty)
+      every { setCaptionsTrack(any()) } just Runs
     },
     sleepTimer = sleepTimer,
     playStateManager = playStateManager,
@@ -336,6 +339,8 @@ class BookPlayViewModelTest {
       player = mockk {
         every { pauseIfCurrentBookDifferentFrom(book.id) } just Runs
         every { livePlaybackStateFlow(book.id) } returns livePlaybackFlow
+        every { captionsStateFlow() } returns MutableStateFlow(CaptionsState.Empty)
+        every { setCaptionsTrack(any()) } just Runs
       },
       sleepTimer = sleepTimer,
       playStateManager = mockk {

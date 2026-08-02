@@ -69,6 +69,7 @@ fun BookPlayScreen(bookId: BookId) {
     onSleepTimerClick = viewModel::toggleSleepTimer,
     onVolumeBoostClick = viewModel::onVolumeGainIconClick,
     onSpeedChangeClick = viewModel::onPlaybackSpeedIconClick,
+    onCaptionsClick = viewModel::onCaptionsIconClick,
     onCloseClick = viewModel::onCloseClick,
     onSkipToNext = viewModel::next,
     onSkipToPrevious = viewModel::previous,
@@ -95,6 +96,13 @@ fun BookPlayScreen(bookId: BookId) {
           onDecrementSleepTime = viewModel::decrementSleepTime,
           onAcceptSleepTime = viewModel::onAcceptSleepTime,
           onAcceptSleepAtEndOfChapter = viewModel::onAcceptSleepAtEndOfChapter,
+        )
+      }
+      is BookPlayDialogViewState.Captions -> {
+        CaptionsBottomSheet(
+          dialogState = dialogState,
+          onDismiss = viewModel::dismissDialog,
+          onTrackSelected = viewModel::onCaptionTrackSelected,
         )
       }
     }

@@ -67,9 +67,12 @@ interface PlaybackModule {
       .setWakeMode(C.WAKE_MODE_LOCAL)
       .build()
       .also { player ->
+        // Captions are opt-in; text tracks stay disabled until the user selects one.
+        var trackParams = player.trackSelectionParameters
+          .buildUpon()
+          .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
         if (media3AudioOffloadFeatureFlag.get()) {
-          player.trackSelectionParameters = player.trackSelectionParameters
-            .buildUpon()
+          trackParams = trackParams
             .setAudioOffloadPreferences(
               TrackSelectionParameters.AudioOffloadPreferences.Builder()
                 .setAudioOffloadMode(TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED)
@@ -77,8 +80,8 @@ interface PlaybackModule {
                 .setIsSpeedChangeSupportRequired(true)
                 .build(),
             )
-            .build()
         }
+        player.trackSelectionParameters = trackParams.build()
         playStateDelegatingListener.attachTo(player)
         positionUpdater.attachTo(player)
         durationInconsistenciesUpdater.attachTo(player)

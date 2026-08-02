@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -29,6 +31,7 @@ internal fun BookPlayAppBar(
   onSpeedChangeClick: () -> Unit,
   onSkipSilenceClick: () -> Unit,
   onVolumeBoostClick: () -> Unit,
+  onCaptionsClick: () -> Unit,
   onCloseClick: () -> Unit,
   useLandscapeLayout: Boolean,
 ) {
@@ -65,6 +68,19 @@ internal fun BookPlayAppBar(
         imageVector = VoiceIcons.Speed,
         contentDescription = stringResource(id = R.string.playback_speed_title),
       )
+    }
+    if (viewState.showCaptionsButton) {
+      IconButton(onClick = onCaptionsClick) {
+        Icon(
+          imageVector = VoiceIcons.ClosedCaption,
+          contentDescription = stringResource(id = R.string.playback_captions_title),
+          tint = if (viewState.captionsEnabled) {
+            MaterialTheme.colorScheme.primary
+          } else {
+            LocalContentColor.current
+          },
+        )
+      }
     }
     OverflowMenu(
       skipSilence = viewState.skipSilence,

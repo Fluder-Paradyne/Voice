@@ -33,6 +33,7 @@ class OnlyAudioRenderersFactory(context: Context) : DefaultRenderersFactory(cont
     extensionRendererMode: Int,
     out: ArrayList<Renderer>,
   ) {
+    super.buildTextRenderers(context, output, outputLooper, extensionRendererMode, out)
   }
 
   override fun buildMetadataRenderers(

@@ -4,7 +4,10 @@ import android.content.ComponentName
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.media3.common.C
+import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.Tracks
+import androidx.media3.common.text.CueGroup
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import dev.zacsweers.metro.Inject
@@ -18,6 +21,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.asDeferred
@@ -28,6 +32,9 @@ import voice.core.data.ChapterId
 import voice.core.data.repo.BookRepository
 import voice.core.data.store.CurrentBookStore
 import voice.core.logging.api.Logger
+import voice.core.playback.captions.CaptionsMapper
+import voice.core.playback.captions.CaptionsState
+import voice.core.playback.captions.applyCaptionsTrackSelection
 import voice.core.playback.misc.Decibel
 import voice.core.playback.session.CustomCommand
 import voice.core.playback.session.MediaItemProvider
@@ -68,6 +75,73 @@ class PlayerController(
       return _controller
     }
   private val scope = CoroutineScope(Dispatchers.Main.immediate)
+  private val selectedCaptionTrackId = MutableStateFlow<String?>(null)
+
+  fun setCaptionsTrack(trackId: String?) = executeAfterPrepare { controller ->
+    selectedCaptionTrackId.value = trackId
+    controller.applyCaptionsTrackSelection(trackId)
+  }
+
+  fun captionsStateFlow(): Flow<CaptionsState> = callbackFlow {
+    val controller = awaitConnect()
+    if (controller == null) {
+      trySend(CaptionsState.Empty)
+      close()
+      return@callbackFlow
+    }
+
+    fun emitState() {
+      val tracks = CaptionsMapper.textTracks(controller.currentTracks)
+      val selected = CaptionsMapper.selectedTrackStillAvailable(tracks, selectedCaptionTrackId.value)
+      if (selectedCaptionTrackId.value != null && selected == null) {
+        selectedCaptionTrackId.value = null
+        controller.applyCaptionsTrackSelection(null)
+      }
+      val cueText = if (selected != null) {
+        CaptionsMapper.cueText(controller.currentCues)
+      } else {
+        null
+      }
+      trySend(
+        CaptionsState(
+          tracks = tracks,
+          selectedTrackId = selected,
+          currentCueText = cueText,
+        ),
+      )
+    }
+
+    val listener = object : Player.Listener {
+      override fun onTracksChanged(tracks: Tracks) {
+        emitState()
+      }
+
+      override fun onCues(cueGroup: CueGroup) {
+        emitState()
+      }
+
+      override fun onMediaItemTransition(
+        mediaItem: MediaItem?,
+        reason: Int,
+      ) {
+        selectedCaptionTrackId.value = null
+        controller.applyCaptionsTrackSelection(null)
+        emitState()
+      }
+    }
+
+    controller.addListener(listener)
+    val selectionJob = launch {
+      selectedCaptionTrackId.collect {
+        emitState()
+      }
+    }
+    emitState()
+    awaitClose {
+      selectionJob.cancel()
+      controller.removeListener(listener)
+    }
+  }
 
   fun setPosition(
     time: Long,

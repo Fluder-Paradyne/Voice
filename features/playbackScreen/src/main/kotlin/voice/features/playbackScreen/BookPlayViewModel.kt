@@ -33,6 +33,7 @@ import voice.core.featureflag.KioskModeFeatureFlagQualifier
 import voice.core.logging.api.Logger
 import voice.core.playback.CurrentBookResolver
 import voice.core.playback.PlayerController
+import voice.core.playback.captions.CaptionsState
 import voice.core.playback.misc.Decibel
 import voice.core.playback.misc.VolumeGain
 import voice.core.playback.overlay
@@ -126,6 +127,9 @@ class BookPlayViewModel(
     }
 
     val sleepTime = remember { sleepTimer.state }.collectAsState().value
+    val captionsState by remember {
+      player.captionsStateFlow()
+    }.collectAsState(initial = CaptionsState.Empty)
     val hasMoreThanOneChapter = book.chapters.sumOf { it.chapterMarks.count() } > 1
     return BookPlayViewState(
       sleepTimerState = sleepTime.toViewState(),
@@ -137,6 +141,9 @@ class BookPlayViewModel(
       playedTime = positionInCurrentMark.milliseconds,
       cover = book.content.coverUrl,
       skipSilence = book.content.skipSilence,
+      showCaptionsButton = captionsState.tracks.isNotEmpty(),
+      captionsEnabled = captionsState.selectedTrackId != null,
+      captionText = captionsState.currentCueText,
     )
   }
 
@@ -153,6 +160,9 @@ class BookPlayViewModel(
       playedTime = 10.hours + 24.minutes,
       cover = book.coverUrl,
       skipSilence = false,
+      showCaptionsButton = false,
+      captionsEnabled = false,
+      captionText = null,
     )
   }
 
@@ -365,6 +375,24 @@ class BookPlayViewModel(
       val skipSilence = currentBook()?.content?.skipSilence ?: return@launch
       player.skipSilence(!skipSilence)
     }
+  }
+
+  fun onCaptionsIconClick() {
+    scope.launch {
+      val captions = player.captionsStateFlow().first()
+      if (captions.tracks.isEmpty()) return@launch
+      dialogState.value = BookPlayDialogViewState.Captions(
+        tracks = captions.tracks.map {
+          BookPlayDialogViewState.Captions.Item(id = it.id, label = it.label)
+        },
+        selectedTrackId = captions.selectedTrackId,
+      )
+    }
+  }
+
+  fun onCaptionTrackSelected(trackId: String?) {
+    player.setCaptionsTrack(trackId)
+    dialogState.value = null
   }
 
   private suspend fun currentBook(): Book? {

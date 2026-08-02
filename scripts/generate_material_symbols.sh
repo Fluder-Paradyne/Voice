@@ -96,5 +96,6 @@ generate_icon timer Timer
 generate_icon title Title
 generate_icon undo Undo
 generate_icon view_list ViewList
+generate_icon closed_caption ClosedCaption
 
 printf '}\n' >> "${OUT_DIR}/VoiceIcons.kt"
