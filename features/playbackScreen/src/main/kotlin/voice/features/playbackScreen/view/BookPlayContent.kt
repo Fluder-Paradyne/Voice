@@ -57,10 +57,10 @@ internal fun BookPlayContent(
             onCurrentChapterClick = onCurrentChapterClick,
           )
         }
-        viewState.captionText?.let { captionText ->
+        if (viewState.captionsEnabled) {
           Spacer(modifier = Modifier.size(12.dp))
           CaptionOverlay(
-            text = captionText,
+            text = viewState.captionText,
             modifier = Modifier.padding(horizontal = 16.dp),
           )
         }
@@ -101,10 +101,10 @@ internal fun BookPlayContent(
           onCurrentChapterClick = onCurrentChapterClick,
         )
       }
-      viewState.captionText?.let { captionText ->
+      if (viewState.captionsEnabled) {
         Spacer(modifier = Modifier.size(12.dp))
         CaptionOverlay(
-          text = captionText,
+          text = viewState.captionText,
           modifier = Modifier.padding(horizontal = 16.dp),
         )
       }

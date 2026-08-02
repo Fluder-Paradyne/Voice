@@ -10,7 +10,9 @@ import androidx.media3.common.Tracks
 import androidx.media3.common.text.CueGroup
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -23,6 +25,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.asDeferred
 import kotlinx.coroutines.isActive
@@ -32,6 +35,7 @@ import voice.core.data.ChapterId
 import voice.core.data.repo.BookRepository
 import voice.core.data.store.CurrentBookStore
 import voice.core.logging.api.Logger
+import voice.core.playback.captions.CaptionTrack
 import voice.core.playback.captions.CaptionsMapper
 import voice.core.playback.captions.CaptionsState
 import voice.core.playback.captions.applyCaptionsTrackSelection
@@ -47,6 +51,7 @@ import voice.core.playback.session.toMediaIdOrNull
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
+@SingleIn(AppScope::class)
 @Inject
 class PlayerController(
   private val context: Context,
@@ -90,13 +95,44 @@ class PlayerController(
       return@callbackFlow
     }
 
-    fun emitState() {
-      val tracks = CaptionsMapper.textTracks(controller.currentTracks)
-      val selected = CaptionsMapper.selectedTrackStillAvailable(tracks, selectedCaptionTrackId.value)
-      if (selectedCaptionTrackId.value != null && selected == null) {
+    var lastMediaItemId: String? = controller.currentMediaItem?.mediaId
+
+    fun syncCaptionSelectionToPlayer(playerTracks: Tracks) {
+      val textTracks = CaptionsMapper.textTracks(playerTracks)
+      // Adopt whatever the player already has selected (survives UI process recreation).
+      val fromPlayer = CaptionsMapper.selectedTextTrackIdFromPlayer(playerTracks)
+      if (selectedCaptionTrackId.value == null && fromPlayer != null) {
+        selectedCaptionTrackId.value = fromPlayer
+      }
+      val preferred = selectedCaptionTrackId.value ?: return
+      if (textTracks.isEmpty()) return
+      val resolved = CaptionsMapper.resolveSelectedTrackId(textTracks, preferred)
+      if (resolved.clearPreference) {
         selectedCaptionTrackId.value = null
         controller.applyCaptionsTrackSelection(null)
+      } else {
+        // Re-apply after rotation / controller reconnect when tracks become available again.
+        controller.applyCaptionsTrackSelection(resolved.selectedTrackId)
       }
+    }
+
+    fun emitState(reapplySelection: Boolean = false) {
+      val playerTracks = controller.currentTracks
+      if (reapplySelection) {
+        syncCaptionSelectionToPlayer(playerTracks)
+      }
+      val tracks = CaptionsMapper.textTracks(playerTracks)
+      val preferred = selectedCaptionTrackId.value
+        ?: CaptionsMapper.selectedTextTrackIdFromPlayer(playerTracks)
+      val resolved = CaptionsMapper.resolveSelectedTrackId(tracks, preferred)
+      if (resolved.clearPreference && selectedCaptionTrackId.value != null) {
+        selectedCaptionTrackId.value = null
+        controller.applyCaptionsTrackSelection(null)
+      } else if (selectedCaptionTrackId.value == null && resolved.selectedTrackId != null) {
+        selectedCaptionTrackId.value = resolved.selectedTrackId
+      }
+      val selected = resolved.selectedTrackId
+      // Always surface active cues when a track is selected (don't hide real player cues).
       val cueText = if (selected != null) {
         CaptionsMapper.cueText(controller.currentCues)
       } else {
@@ -113,7 +149,7 @@ class PlayerController(
 
     val listener = object : Player.Listener {
       override fun onTracksChanged(tracks: Tracks) {
-        emitState()
+        emitState(reapplySelection = true)
       }
 
       override fun onCues(cueGroup: CueGroup) {
@@ -124,6 +160,13 @@ class PlayerController(
         mediaItem: MediaItem?,
         reason: Int,
       ) {
+        val newId = mediaItem?.mediaId
+        // Reconnect / rotation can re-emit the same item; only reset on a real chapter change.
+        if (newId != null && newId == lastMediaItemId) {
+          emitState(reapplySelection = true)
+          return
+        }
+        lastMediaItemId = newId
         selectedCaptionTrackId.value = null
         controller.applyCaptionsTrackSelection(null)
         emitState()
@@ -133,15 +176,16 @@ class PlayerController(
     controller.addListener(listener)
     val selectionJob = launch {
       selectedCaptionTrackId.collect {
-        emitState()
+        emitState(reapplySelection = true)
       }
     }
-    emitState()
+    // Restore selection after Activity recreation re-subscribes this flow.
+    emitState(reapplySelection = true)
     awaitClose {
       selectionJob.cancel()
       controller.removeListener(listener)
     }
-  }
+  }.distinctUntilChanged()
 
   fun setPosition(
     time: Long,

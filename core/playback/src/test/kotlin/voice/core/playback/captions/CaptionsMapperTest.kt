@@ -104,6 +104,60 @@ class CaptionsMapperTest {
     assertThat(CaptionsMapper.selectedTrackStillAvailable(tracks, null)).isNull()
   }
 
+  @Test
+  fun `resolveSelectedTrackId keeps preference while tracks are temporarily empty`() {
+    val resolved = CaptionsMapper.resolveSelectedTrackId(
+      tracks = emptyList(),
+      preferredTrackId = "1:0",
+    )
+    assertThat(resolved.selectedTrackId).isEqualTo("1:0")
+    assertThat(resolved.clearPreference).isFalse()
+  }
+
+  @Test
+  fun `resolveSelectedTrackId clears preference only when tracks loaded without it`() {
+    val tracks = listOf(CaptionTrack("0:0", "English"))
+    val missing = CaptionsMapper.resolveSelectedTrackId(tracks, "9:9")
+    assertThat(missing.selectedTrackId).isNull()
+    assertThat(missing.clearPreference).isTrue()
+
+    val present = CaptionsMapper.resolveSelectedTrackId(tracks, "0:0")
+    assertThat(present.selectedTrackId).isEqualTo("0:0")
+    assertThat(present.clearPreference).isFalse()
+  }
+
+  @Test
+  fun `selectedTextTrackIdFromPlayer returns selected text track`() {
+    val english = format(MimeTypes.TEXT_VTT, language = "en", label = "English")
+    val tracks = Tracks(
+      listOf(
+        Tracks.Group(
+          TrackGroup(english),
+          false,
+          intArrayOf(C.FORMAT_HANDLED),
+          booleanArrayOf(true),
+        ),
+      ),
+    )
+    assertThat(CaptionsMapper.selectedTextTrackIdFromPlayer(tracks)).isEqualTo("0:0")
+  }
+
+  @Test
+  fun `selectedTextTrackIdFromPlayer returns null when none selected`() {
+    val english = format(MimeTypes.TEXT_VTT, language = "en", label = "English")
+    val tracks = Tracks(
+      listOf(
+        Tracks.Group(
+          TrackGroup(english),
+          false,
+          intArrayOf(C.FORMAT_HANDLED),
+          booleanArrayOf(false),
+        ),
+      ),
+    )
+    assertThat(CaptionsMapper.selectedTextTrackIdFromPlayer(tracks)).isNull()
+  }
+
   private fun format(
     mimeType: String,
     language: String?,
