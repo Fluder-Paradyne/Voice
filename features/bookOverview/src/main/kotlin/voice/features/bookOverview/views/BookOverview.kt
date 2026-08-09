@@ -53,6 +53,7 @@ import voice.features.bookOverview.editTitle.EditBookTitleDialog
 import voice.features.bookOverview.overview.BookOverviewCategory
 import voice.features.bookOverview.overview.BookOverviewItemViewState
 import voice.features.bookOverview.overview.BookOverviewLayoutMode
+import voice.features.bookOverview.overview.BookOverviewRow
 import voice.features.bookOverview.overview.BookOverviewViewState
 import voice.features.bookOverview.search.BookSearchViewState
 import voice.features.bookOverview.views.topbar.BookOverviewTopBar
@@ -315,21 +316,19 @@ internal class BookOverviewPreviewParameterProvider : PreviewParameterProvider<B
   override val values = sequenceOf(
     BookOverviewViewState(
       books = mapOf(
-        BookOverviewCategory.CURRENT to buildMap {
-          repeat(10) {
-            put(
-              BookId(Uuid.random().toString()),
-              mutableStateOf(book()),
-            )
-          }
+        BookOverviewCategory.CURRENT to List(10) {
+          val item = book()
+          BookOverviewRow.Book(
+            id = item.id,
+            item = mutableStateOf(item),
+          )
         },
-        BookOverviewCategory.FINISHED to buildMap {
-          repeat(2) {
-            put(
-              BookId(Uuid.random().toString()),
-              mutableStateOf(book()),
-            )
-          }
+        BookOverviewCategory.FINISHED to List(2) {
+          val item = book()
+          BookOverviewRow.Book(
+            id = item.id,
+            item = mutableStateOf(item),
+          )
         },
       ),
       layoutMode = BookOverviewLayoutMode.List,

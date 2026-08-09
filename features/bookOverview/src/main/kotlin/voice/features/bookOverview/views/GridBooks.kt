@@ -17,11 +17,9 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,12 +35,13 @@ import voice.core.data.BookId
 import voice.core.ui.sharedCoverElementModifier
 import voice.features.bookOverview.overview.BookOverviewCategory
 import voice.features.bookOverview.overview.BookOverviewItemViewState
+import voice.features.bookOverview.overview.BookOverviewRow
 import kotlin.math.roundToInt
 import voice.core.ui.R as UiR
 
 @Composable
 internal fun GridBooks(
-  books: Map<BookOverviewCategory, Map<BookId, State<BookOverviewItemViewState>>>,
+  books: Map<BookOverviewCategory, List<BookOverviewRow>>,
   onBookClick: (BookId) -> Unit,
   onBookLongClick: (BookId) -> Unit,
   showPermissionBugCard: Boolean,
@@ -62,8 +61,8 @@ internal fun GridBooks(
         PermissionBugCard(onPermissionBugCardClick)
       }
     }
-    books.forEach { (category, books) ->
-      if (books.isEmpty()) return@forEach
+    books.forEach { (category, rows) ->
+      if (rows.isEmpty()) return@forEach
       item(
         span = { GridItemSpan(maxLineSpan) },
         key = category,
@@ -74,16 +73,20 @@ internal fun GridBooks(
           category = category,
         )
       }
-      items(
-        items = books.toList(),
-        key = { (bookId, _) -> bookId.value },
-        contentType = { "item" },
-      ) { (_, bookState) ->
-        GridBook(
-          book = bookState.value,
-          onBookClick = onBookClick,
-          onBookLongClick = onBookLongClick,
-        )
+      rows.forEach { row ->
+        when (row) {
+          is BookOverviewRow.Book -> item(
+            key = row.id.value,
+            contentType = "item",
+          ) {
+            GridBook(
+              book = row.item.value,
+              onBookClick = onBookClick,
+              onBookLongClick = onBookLongClick,
+            )
+          }
+          is BookOverviewRow.SeriesHeader -> error("SeriesHeader is not rendered until series grouping is wired")
+        }
       }
       item(
         span = { GridItemSpan(maxLineSpan) },

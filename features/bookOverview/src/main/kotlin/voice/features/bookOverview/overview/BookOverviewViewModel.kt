@@ -141,10 +141,13 @@ class BookOverviewViewModel(
         .mapValues { (category, books) ->
           books
             .sortedWith(category.comparator)
-            .associate { book ->
-              book.id to book.itemViewState(
-                currentBookId = currentBookId,
-                livePlaybackState = { livePlaybackState.value },
+            .map { book ->
+              BookOverviewRow.Book(
+                id = book.id,
+                item = book.itemViewState(
+                  currentBookId = currentBookId,
+                  livePlaybackState = { livePlaybackState.value },
+                ),
               )
             }
         }
@@ -218,15 +221,18 @@ class BookOverviewViewModel(
     return BookOverviewViewState(
       layoutMode = BookOverviewLayoutMode.List,
       books = mapOf(
-        BookOverviewCategory.CURRENT to KioskModeDemoData.demoAudiobooks.associate { book ->
-          book.id to mutableStateOf(
-            BookOverviewItemViewState(
-              name = book.title,
-              author = book.author,
-              cover = book.coverUrl,
-              progress = book.progress / 100F,
-              id = book.id,
-              remainingTime = book.remaining,
+        BookOverviewCategory.CURRENT to KioskModeDemoData.demoAudiobooks.map { book ->
+          BookOverviewRow.Book(
+            id = book.id,
+            item = mutableStateOf(
+              BookOverviewItemViewState(
+                name = book.title,
+                author = book.author,
+                cover = book.coverUrl,
+                progress = book.progress / 100F,
+                id = book.id,
+                remainingTime = book.remaining,
+              ),
             ),
           )
         },
