@@ -123,6 +123,84 @@ class BookOverviewViewModelTest {
   }
 
   @Test
+  fun `state groups same-series books under a series header`() = runTest {
+    val part2 = book(
+      name = "Chamber of Secrets",
+      id = BookId("hp-2"),
+      series = "Harry Potter",
+      part = "2",
+    )
+    val part1 = book(
+      name = "Philosopher's Stone",
+      id = BookId("hp-1"),
+      series = "Harry Potter",
+      part = "1",
+    )
+    val standalone = book(
+      name = "Dune",
+      id = BookId("dune"),
+    )
+    val viewModel = BookOverviewViewModel(
+      repo = mockk<BookRepository> {
+        every { flow() } returns MutableStateFlow(listOf(part2, part1, standalone))
+      },
+      mediaScanner = mockk<MediaScanTrigger> {
+        every { scannerActive } returns MutableStateFlow(false)
+        every { scan(any()) } just Runs
+      },
+      playStateManager = PlayStateManager(),
+      playerController = mockk(),
+      currentBookStoreDataStore = MemoryDataStore(null),
+      folderPickerMovedDialogShownStore = MemoryDataStore(false),
+      gridModeStore = MemoryDataStore(GridMode.LIST),
+      gridCount = mockk<GridCount> {
+        every { useGridAsDefault() } returns false
+      },
+      navigator = mockk<Navigator>(),
+      appInfoProvider = appInfoProvider(),
+      recentBookSearchDao = mockk<RecentBookSearchDao> {
+        every { recentBookSearches() } returns MutableStateFlow(emptyList())
+      },
+      search = mockk<BookSearch> {
+        coEvery { search(any()) } returns emptyList()
+      },
+      contentRepo = mockk<BookContentRepo>(),
+      deviceHasStoragePermissionBug = mockk<DeviceHasStoragePermissionBug> {
+        every { hasBug } returns MutableStateFlow(false)
+      },
+      folderPickerInSettingsFeatureFlag = MemoryFeatureFlag(false),
+      experimentalPlaybackPersistenceFeatureFlag = MemoryFeatureFlag(false),
+      kioskModeFeatureFlag = MemoryFeatureFlag(false),
+      dispatcherProvider = dispatcherProvider,
+    )
+
+    backgroundScope.launchMolecule(RecompositionMode.Immediate) {
+      viewModel.state()
+    }.test {
+      assertEquals(expected = BookOverviewViewState.Loading, actual = awaitItem())
+      val rows = awaitItem().rows(BookOverviewCategory.CURRENT)
+      assertEquals(
+        expected = listOf(
+          BookOverviewRow.SeriesHeader(
+            series = "Harry Potter",
+            matchKey = "harry potter",
+            bookCount = 2,
+          ),
+          part1.id,
+          part2.id,
+          standalone.id,
+        ),
+        actual = rows.map { row ->
+          when (row) {
+            is BookOverviewRow.SeriesHeader -> row
+            is BookOverviewRow.Book -> row.id
+          }
+        },
+      )
+    }
+  }
+
+  @Test
   fun `state uses demo books in kiosk mode`() = runTest {
     val viewModel = BookOverviewViewModel(
       repo = mockk<BookRepository> {
@@ -294,6 +372,10 @@ class BookOverviewViewModelTest {
       .filterIsInstance<BookOverviewRow.Book>()
       .first { it.id == bookId }
       .item.value
+  }
+
+  private fun BookOverviewViewState.rows(category: BookOverviewCategory): List<BookOverviewRow> {
+    return books.getValue(category)
   }
 
   private fun viewModel(

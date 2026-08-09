@@ -68,6 +68,17 @@ internal fun ListBooks(
       }
       rows.forEach { row ->
         when (row) {
+          is BookOverviewRow.SeriesHeader -> item(
+            key = "series-${category.name}-${row.matchKey}",
+            contentType = "seriesHeader",
+          ) {
+            SeriesHeader(
+              series = row.series,
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            )
+          }
           is BookOverviewRow.Book -> item(
             key = row.id.value,
             contentType = "item",
@@ -78,7 +89,6 @@ internal fun ListBooks(
               onBookLongClick = onBookLongClick,
             )
           }
-          is BookOverviewRow.SeriesHeader -> error("SeriesHeader is not rendered until series grouping is wired")
         }
       }
       item {

@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,6 +37,8 @@ import voice.core.ui.sharedCoverElementModifier
 import voice.features.bookOverview.overview.BookOverviewCategory
 import voice.features.bookOverview.overview.BookOverviewItemViewState
 import voice.features.bookOverview.overview.BookOverviewRow
+import voice.features.bookOverview.overview.GridRenderItem
+import voice.features.bookOverview.overview.toGridItems
 import kotlin.math.roundToInt
 import voice.core.ui.R as UiR
 
@@ -73,19 +76,36 @@ internal fun GridBooks(
           category = category,
         )
       }
-      rows.forEach { row ->
-        when (row) {
-          is BookOverviewRow.Book -> item(
-            key = row.id.value,
+      rows.toGridItems(cellCount).forEach { renderItem ->
+        when (renderItem) {
+          is GridRenderItem.SeriesHeader -> item(
+            key = "series-${category.name}-${renderItem.matchKey}",
+            span = { GridItemSpan(maxLineSpan) },
+            contentType = "seriesHeader",
+          ) {
+            SeriesHeader(
+              series = renderItem.series,
+              modifier = Modifier.padding(top = 8.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
+            )
+          }
+          is GridRenderItem.Book -> item(
+            key = renderItem.book.id.value,
             contentType = "item",
           ) {
             GridBook(
-              book = row.item.value,
+              book = renderItem.book.item.value,
               onBookClick = onBookClick,
               onBookLongClick = onBookLongClick,
             )
           }
-          is BookOverviewRow.SeriesHeader -> error("SeriesHeader is not rendered until series grouping is wired")
+          is GridRenderItem.RowFiller -> item(
+            key = "series-end-${category.name}-${renderItem.matchKey}",
+            span = { GridItemSpan(renderItem.span) },
+            contentType = "seriesEnd",
+          ) {
+            // Layout-only: hide from TalkBack / D-pad. Lazy items are otherwise focusable.
+            Spacer(Modifier.clearAndSetSemantics { })
+          }
         }
       }
       item(

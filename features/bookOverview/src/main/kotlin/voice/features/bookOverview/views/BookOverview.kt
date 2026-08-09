@@ -346,5 +346,61 @@ internal class BookOverviewPreviewParameterProvider : PreviewParameterProvider<B
       showFolderPickerIcon = true,
       dialog = null,
     ),
+    seriesPreview(layoutMode = BookOverviewLayoutMode.List),
+    seriesPreview(layoutMode = BookOverviewLayoutMode.Grid),
   )
+
+  private fun seriesPreview(layoutMode: BookOverviewLayoutMode): BookOverviewViewState {
+    return BookOverviewViewState(
+      books = mapOf(
+        BookOverviewCategory.CURRENT to seriesWithStandaloneRows(),
+      ),
+      layoutMode = layoutMode,
+      playButtonState = BookOverviewViewState.PlayButtonState.Paused,
+      showAddBookHint = false,
+      showSearchIcon = true,
+      isLoading = false,
+      searchActive = false,
+      searchViewState = BookSearchViewState.EmptySearch(
+        suggestedAuthors = emptyList(),
+        recentQueries = emptyList(),
+        query = "",
+      ),
+      showStoragePermissionBugCard = false,
+      showFolderPickerIcon = true,
+      dialog = null,
+    )
+  }
+
+  private fun seriesWithStandaloneRows(): List<BookOverviewRow> {
+    val seriesBooks = listOf(
+      book().copy(name = "Philosopher's Stone"),
+      book().copy(name = "Chamber of Secrets"),
+      book().copy(name = "Prisoner of Azkaban"),
+    )
+    val standalone = book().copy(name = "Dune")
+    return buildList {
+      add(
+        BookOverviewRow.SeriesHeader(
+          series = "Harry Potter",
+          matchKey = "harry potter",
+          bookCount = seriesBooks.size,
+        ),
+      )
+      seriesBooks.forEach { item ->
+        add(
+          BookOverviewRow.Book(
+            id = item.id,
+            item = mutableStateOf(item),
+          ),
+        )
+      }
+      add(
+        BookOverviewRow.Book(
+          id = standalone.id,
+          item = mutableStateOf(standalone),
+        ),
+      )
+    }
+  }
 }

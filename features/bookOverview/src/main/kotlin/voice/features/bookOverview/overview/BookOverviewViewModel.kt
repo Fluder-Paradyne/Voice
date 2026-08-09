@@ -138,18 +138,16 @@ class BookOverviewViewModel(
         .groupBy {
           it.category
         }
-        .mapValues { (category, books) ->
-          books
-            .sortedWith(category.comparator)
-            .map { book ->
-              BookOverviewRow.Book(
-                id = book.id,
-                item = book.itemViewState(
-                  currentBookId = currentBookId,
-                  livePlaybackState = { livePlaybackState.value },
-                ),
-              )
-            }
+        .mapValues { (category, categoryBooks) ->
+          groupBooksInCategory(categoryBooks, category).toRows { book ->
+            BookOverviewRow.Book(
+              id = book.id,
+              item = book.itemViewState(
+                currentBookId = currentBookId,
+                livePlaybackState = { livePlaybackState.value },
+              ),
+            )
+          }
         }
         .toSortedMap(),
       playButtonState = if (playState == PlayStateManager.PlayState.Playing) {
@@ -172,6 +170,27 @@ class BookOverviewViewModel(
         appInfoProvider.installTime < FolderPickerMigrationInstallTimeCutoff,
       dialog = dialog,
     )
+  }
+
+  @Composable
+  private fun List<LibraryUnit>.toRows(
+    bookRow: @Composable (Book) -> BookOverviewRow.Book,
+  ): List<BookOverviewRow> {
+    return flatMap { unit ->
+      when (unit) {
+        is LibraryUnit.Standalone -> listOf(bookRow(unit.book))
+        is LibraryUnit.Series -> buildList<BookOverviewRow> {
+          add(
+            BookOverviewRow.SeriesHeader(
+              series = unit.displayName,
+              matchKey = unit.matchKey,
+              bookCount = unit.books.size,
+            ),
+          )
+          unit.books.forEach { add(bookRow(it)) }
+        }
+      }
+    }
   }
 
   @Composable
