@@ -47,6 +47,10 @@ class GridRenderItemsTest {
       val matchKey: String,
       val span: Int,
     ) : ItemSnapshot
+
+    data class SeriesFooter(
+      val matchKey: String,
+    ) : ItemSnapshot
   }
 
   private fun GridRenderItem.toSnapshot(): ItemSnapshot {
@@ -54,6 +58,7 @@ class GridRenderItemsTest {
       is GridRenderItem.SeriesHeader -> ItemSnapshot.SeriesHeader(series, matchKey)
       is GridRenderItem.Book -> ItemSnapshot.Book(book.id.value)
       is GridRenderItem.RowFiller -> ItemSnapshot.RowFiller(matchKey, span)
+      is GridRenderItem.SeriesFooter -> ItemSnapshot.SeriesFooter(matchKey)
     }
   }
 
@@ -107,6 +112,7 @@ class GridRenderItemsTest {
         book("hp-1"),
         book("hp-2"),
         book("hp-3"),
+        BookOverviewRow.SeriesFooter(matchKey = "harry potter"),
         book("dune"),
       ),
       columnCount = 2,
@@ -116,6 +122,7 @@ class GridRenderItemsTest {
         bookSnapshot("hp-2"),
         bookSnapshot("hp-3"),
         fillerSnapshot(span = 1),
+        ItemSnapshot.SeriesFooter(matchKey = "harry potter"),
         bookSnapshot("dune"),
       ),
     ),

@@ -138,8 +138,8 @@ class GroupBooksInCategoryTest {
       category = BookOverviewCategory.CURRENT,
       expected = listOf(
         series("Harry Potter", "harry potter", "Stone", "Chamber"),
-        standalone("Dune"),
         series("Kingkiller Chronicle", "kingkiller chronicle", "Wind", "Wise Man"),
+        standalone("Dune"),
       ),
     ),
     Case(
@@ -180,8 +180,8 @@ class GroupBooksInCategoryTest {
       ),
       category = BookOverviewCategory.NOT_STARTED,
       expected = listOf(
-        standalone("Dune"),
         series("Harry Potter", "harry potter", "Stone", "Chamber"),
+        standalone("Dune"),
         standalone("The Hobbit"),
       ),
     ),
@@ -298,6 +298,21 @@ class GroupBooksInCategoryTest {
         series("Harry Potter", "harry potter", "Stone", "Chamber"),
         standalone("Wind"),
         standalone("Dune"),
+      ),
+    ),
+    Case(
+      name = "series clusters before standalones",
+      books = listOf(
+        book(name = "Dune"),
+        book(name = "Chamber", series = "Harry Potter", part = "2"),
+        book(name = "Stone", series = "Harry Potter", part = "1"),
+        book(name = "The Hobbit"),
+      ),
+      category = BookOverviewCategory.NOT_STARTED,
+      expected = listOf(
+        series("Harry Potter", "harry potter", "Stone", "Chamber"),
+        standalone("Dune"),
+        standalone("The Hobbit"),
       ),
     ),
   )

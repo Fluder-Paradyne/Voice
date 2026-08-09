@@ -76,7 +76,7 @@ internal fun ListBooks(
               series = row.series,
               modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
+                .padding(start = 8.dp, end = 8.dp, top = 12.dp, bottom = 4.dp),
             )
           }
           is BookOverviewRow.Book -> item(
@@ -87,6 +87,14 @@ internal fun ListBooks(
               book = row.item.value,
               onBookClick = onBookClick,
               onBookLongClick = onBookLongClick,
+            )
+          }
+          is BookOverviewRow.SeriesFooter -> item(
+            key = "series-end-${category.name}-${row.matchKey}",
+            contentType = "seriesFooter",
+          ) {
+            SeriesFooter(
+              modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
             )
           }
         }

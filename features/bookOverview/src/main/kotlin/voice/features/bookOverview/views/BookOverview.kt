@@ -395,6 +395,7 @@ internal class BookOverviewPreviewParameterProvider : PreviewParameterProvider<B
           ),
         )
       }
+      add(BookOverviewRow.SeriesFooter(matchKey = "harry potter"))
       add(
         BookOverviewRow.Book(
           id = standalone.id,

@@ -176,18 +176,25 @@ class BookOverviewViewModel(
   private fun List<LibraryUnit>.toRows(
     bookRow: @Composable (Book) -> BookOverviewRow.Book,
   ): List<BookOverviewRow> {
-    return flatMap { unit ->
-      when (unit) {
-        is LibraryUnit.Standalone -> listOf(bookRow(unit.book))
-        is LibraryUnit.Series -> buildList<BookOverviewRow> {
-          add(
-            BookOverviewRow.SeriesHeader(
-              series = unit.displayName,
-              matchKey = unit.matchKey,
-              bookCount = unit.books.size,
-            ),
-          )
-          unit.books.forEach { add(bookRow(it)) }
+    val units = this
+    return buildList {
+      units.forEachIndexed { index, unit ->
+        when (unit) {
+          is LibraryUnit.Standalone -> add(bookRow(unit.book))
+          is LibraryUnit.Series -> {
+            add(
+              BookOverviewRow.SeriesHeader(
+                series = unit.displayName,
+                matchKey = unit.matchKey,
+                bookCount = unit.books.size,
+              ),
+            )
+            unit.books.forEach { add(bookRow(it)) }
+            val next = units.getOrNull(index + 1)
+            if (next is LibraryUnit.Standalone) {
+              add(BookOverviewRow.SeriesFooter(matchKey = unit.matchKey))
+            }
+          }
         }
       }
     }

@@ -61,10 +61,16 @@ private val inSeriesComparator: Comparator<Book> =
 
 private fun unitComparator(category: BookOverviewCategory): Comparator<LibraryUnit> {
   return Comparator { left, right ->
-    category.comparator.compare(
-      left.sortBook(category),
-      right.sortBook(category),
-    )
+    val leftIsSeries = left is LibraryUnit.Series
+    val rightIsSeries = right is LibraryUnit.Series
+    when {
+      leftIsSeries && !rightIsSeries -> -1
+      !leftIsSeries && rightIsSeries -> 1
+      else -> category.comparator.compare(
+        left.sortBook(category),
+        right.sortBook(category),
+      )
+    }
   }
 }
 

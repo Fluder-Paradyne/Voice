@@ -85,7 +85,7 @@ internal fun GridBooks(
           ) {
             SeriesHeader(
               series = renderItem.series,
-              modifier = Modifier.padding(top = 8.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
+              modifier = Modifier.padding(top = 12.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
             )
           }
           is GridRenderItem.Book -> item(
@@ -105,6 +105,15 @@ internal fun GridBooks(
           ) {
             // Layout-only: hide from TalkBack / D-pad. Lazy items are otherwise focusable.
             Spacer(Modifier.clearAndSetSemantics { })
+          }
+          is GridRenderItem.SeriesFooter -> item(
+            key = "series-footer-${category.name}-${renderItem.matchKey}",
+            span = { GridItemSpan(maxLineSpan) },
+            contentType = "seriesFooter",
+          ) {
+            SeriesFooter(
+              modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
+            )
           }
         }
       }

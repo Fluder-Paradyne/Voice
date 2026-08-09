@@ -188,12 +188,14 @@ class BookOverviewViewModelTest {
           ),
           part1.id,
           part2.id,
+          BookOverviewRow.SeriesFooter(matchKey = "harry potter"),
           standalone.id,
         ),
         actual = rows.map { row ->
           when (row) {
             is BookOverviewRow.SeriesHeader -> row
             is BookOverviewRow.Book -> row.id
+            is BookOverviewRow.SeriesFooter -> row
           }
         },
       )

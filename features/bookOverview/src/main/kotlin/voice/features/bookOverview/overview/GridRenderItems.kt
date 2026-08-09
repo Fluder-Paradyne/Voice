@@ -15,6 +15,10 @@ internal sealed interface GridRenderItem {
     val matchKey: String,
     val span: Int,
   ) : GridRenderItem
+
+  data class SeriesFooter(
+    val matchKey: String,
+  ) : GridRenderItem
 }
 
 internal fun List<BookOverviewRow>.toGridItems(columnCount: Int): List<GridRenderItem> {
@@ -31,13 +35,18 @@ internal fun List<BookOverviewRow>.toGridItems(columnCount: Int): List<GridRende
         }
         i += 1 + row.bookCount
         val leftover = row.bookCount % columnCount
-        val nextIsStandalone = i < this.size && this[i] is BookOverviewRow.Book
-        if (leftover != 0 && nextIsStandalone) {
+        val nextClosesCluster = i < this.size &&
+          (this[i] is BookOverviewRow.Book || this[i] is BookOverviewRow.SeriesFooter)
+        if (leftover != 0 && nextClosesCluster) {
           items.add(GridRenderItem.RowFiller(matchKey = row.matchKey, span = columnCount - leftover))
         }
       }
       is BookOverviewRow.Book -> {
         items.add(GridRenderItem.Book(row))
+        i += 1
+      }
+      is BookOverviewRow.SeriesFooter -> {
+        items.add(GridRenderItem.SeriesFooter(row.matchKey))
         i += 1
       }
     }

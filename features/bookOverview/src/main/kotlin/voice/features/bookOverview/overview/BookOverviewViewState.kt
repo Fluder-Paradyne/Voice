@@ -17,6 +17,10 @@ sealed interface BookOverviewRow {
     val id: BookId,
     val item: State<BookOverviewItemViewState>,
   ) : BookOverviewRow
+
+  data class SeriesFooter(
+    val matchKey: String,
+  ) : BookOverviewRow
 }
 
 @Immutable
