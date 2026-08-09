@@ -14,12 +14,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,11 +32,12 @@ import voice.core.data.BookId
 import voice.core.ui.sharedCoverElementModifier
 import voice.features.bookOverview.overview.BookOverviewCategory
 import voice.features.bookOverview.overview.BookOverviewItemViewState
+import voice.features.bookOverview.overview.BookOverviewRow
 import voice.core.ui.R as UiR
 
 @Composable
 internal fun ListBooks(
-  books: Map<BookOverviewCategory, Map<BookId, State<BookOverviewItemViewState>>>,
+  books: Map<BookOverviewCategory, List<BookOverviewRow>>,
   onBookClick: (BookId) -> Unit,
   onBookLongClick: (BookId) -> Unit,
   showPermissionBugCard: Boolean,
@@ -53,8 +52,8 @@ internal fun ListBooks(
         PermissionBugCard(onPermissionBugCardClick)
       }
     }
-    books.forEach { (category, books) ->
-      if (books.isEmpty()) return@forEach
+    books.forEach { (category, rows) ->
+      if (rows.isEmpty()) return@forEach
       stickyHeader(
         key = category,
         contentType = "header",
@@ -67,16 +66,38 @@ internal fun ListBooks(
           category = category,
         )
       }
-      items(
-        items = books.toList(),
-        key = { (bookId, _) -> bookId.value },
-        contentType = { "item" },
-      ) { (_, bookState) ->
-        ListBookRow(
-          book = bookState.value,
-          onBookClick = onBookClick,
-          onBookLongClick = onBookLongClick,
-        )
+      rows.forEach { row ->
+        when (row) {
+          is BookOverviewRow.SeriesHeader -> item(
+            key = "series-${category.name}-${row.matchKey}",
+            contentType = "seriesHeader",
+          ) {
+            SeriesHeader(
+              series = row.series,
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp, end = 8.dp, top = 12.dp, bottom = 4.dp),
+            )
+          }
+          is BookOverviewRow.Book -> item(
+            key = row.id.value,
+            contentType = "item",
+          ) {
+            ListBookRow(
+              book = row.item.value,
+              onBookClick = onBookClick,
+              onBookLongClick = onBookLongClick,
+            )
+          }
+          is BookOverviewRow.SeriesFooter -> item(
+            key = "series-end-${category.name}-${row.matchKey}",
+            contentType = "seriesFooter",
+          ) {
+            SeriesFooter(
+              modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
+            )
+          }
+        }
       }
       item {
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))

@@ -138,15 +138,16 @@ class BookOverviewViewModel(
         .groupBy {
           it.category
         }
-        .mapValues { (category, books) ->
-          books
-            .sortedWith(category.comparator)
-            .associate { book ->
-              book.id to book.itemViewState(
+        .mapValues { (category, categoryBooks) ->
+          groupBooksInCategory(categoryBooks, category).toRows { book ->
+            BookOverviewRow.Book(
+              id = book.id,
+              item = book.itemViewState(
                 currentBookId = currentBookId,
                 livePlaybackState = { livePlaybackState.value },
-              )
-            }
+              ),
+            )
+          }
         }
         .toSortedMap(),
       playButtonState = if (playState == PlayStateManager.PlayState.Playing) {
@@ -169,6 +170,34 @@ class BookOverviewViewModel(
         appInfoProvider.installTime < FolderPickerMigrationInstallTimeCutoff,
       dialog = dialog,
     )
+  }
+
+  @Composable
+  private fun List<LibraryUnit>.toRows(
+    bookRow: @Composable (Book) -> BookOverviewRow.Book,
+  ): List<BookOverviewRow> {
+    val units = this
+    return buildList {
+      units.forEachIndexed { index, unit ->
+        when (unit) {
+          is LibraryUnit.Standalone -> add(bookRow(unit.book))
+          is LibraryUnit.Series -> {
+            add(
+              BookOverviewRow.SeriesHeader(
+                series = unit.displayName,
+                matchKey = unit.matchKey,
+                bookCount = unit.books.size,
+              ),
+            )
+            unit.books.forEach { add(bookRow(it)) }
+            val next = units.getOrNull(index + 1)
+            if (next is LibraryUnit.Standalone) {
+              add(BookOverviewRow.SeriesFooter(matchKey = unit.matchKey))
+            }
+          }
+        }
+      }
+    }
   }
 
   @Composable
@@ -218,15 +247,18 @@ class BookOverviewViewModel(
     return BookOverviewViewState(
       layoutMode = BookOverviewLayoutMode.List,
       books = mapOf(
-        BookOverviewCategory.CURRENT to KioskModeDemoData.demoAudiobooks.associate { book ->
-          book.id to mutableStateOf(
-            BookOverviewItemViewState(
-              name = book.title,
-              author = book.author,
-              cover = book.coverUrl,
-              progress = book.progress / 100F,
-              id = book.id,
-              remainingTime = book.remaining,
+        BookOverviewCategory.CURRENT to KioskModeDemoData.demoAudiobooks.map { book ->
+          BookOverviewRow.Book(
+            id = book.id,
+            item = mutableStateOf(
+              BookOverviewItemViewState(
+                name = book.title,
+                author = book.author,
+                cover = book.coverUrl,
+                progress = book.progress / 100F,
+                id = book.id,
+                remainingTime = book.remaining,
+              ),
             ),
           )
         },

@@ -53,6 +53,7 @@ import voice.features.bookOverview.editTitle.EditBookTitleDialog
 import voice.features.bookOverview.overview.BookOverviewCategory
 import voice.features.bookOverview.overview.BookOverviewItemViewState
 import voice.features.bookOverview.overview.BookOverviewLayoutMode
+import voice.features.bookOverview.overview.BookOverviewRow
 import voice.features.bookOverview.overview.BookOverviewViewState
 import voice.features.bookOverview.search.BookSearchViewState
 import voice.features.bookOverview.views.topbar.BookOverviewTopBar
@@ -315,21 +316,19 @@ internal class BookOverviewPreviewParameterProvider : PreviewParameterProvider<B
   override val values = sequenceOf(
     BookOverviewViewState(
       books = mapOf(
-        BookOverviewCategory.CURRENT to buildMap {
-          repeat(10) {
-            put(
-              BookId(Uuid.random().toString()),
-              mutableStateOf(book()),
-            )
-          }
+        BookOverviewCategory.CURRENT to List(10) {
+          val item = book()
+          BookOverviewRow.Book(
+            id = item.id,
+            item = mutableStateOf(item),
+          )
         },
-        BookOverviewCategory.FINISHED to buildMap {
-          repeat(2) {
-            put(
-              BookId(Uuid.random().toString()),
-              mutableStateOf(book()),
-            )
-          }
+        BookOverviewCategory.FINISHED to List(2) {
+          val item = book()
+          BookOverviewRow.Book(
+            id = item.id,
+            item = mutableStateOf(item),
+          )
         },
       ),
       layoutMode = BookOverviewLayoutMode.List,
@@ -347,5 +346,62 @@ internal class BookOverviewPreviewParameterProvider : PreviewParameterProvider<B
       showFolderPickerIcon = true,
       dialog = null,
     ),
+    seriesPreview(layoutMode = BookOverviewLayoutMode.List),
+    seriesPreview(layoutMode = BookOverviewLayoutMode.Grid),
   )
+
+  private fun seriesPreview(layoutMode: BookOverviewLayoutMode): BookOverviewViewState {
+    return BookOverviewViewState(
+      books = mapOf(
+        BookOverviewCategory.CURRENT to seriesWithStandaloneRows(),
+      ),
+      layoutMode = layoutMode,
+      playButtonState = BookOverviewViewState.PlayButtonState.Paused,
+      showAddBookHint = false,
+      showSearchIcon = true,
+      isLoading = false,
+      searchActive = false,
+      searchViewState = BookSearchViewState.EmptySearch(
+        suggestedAuthors = emptyList(),
+        recentQueries = emptyList(),
+        query = "",
+      ),
+      showStoragePermissionBugCard = false,
+      showFolderPickerIcon = true,
+      dialog = null,
+    )
+  }
+
+  private fun seriesWithStandaloneRows(): List<BookOverviewRow> {
+    val seriesBooks = listOf(
+      book().copy(name = "Philosopher's Stone"),
+      book().copy(name = "Chamber of Secrets"),
+      book().copy(name = "Prisoner of Azkaban"),
+    )
+    val standalone = book().copy(name = "Dune")
+    return buildList {
+      add(
+        BookOverviewRow.SeriesHeader(
+          series = "Harry Potter",
+          matchKey = "harry potter",
+          bookCount = seriesBooks.size,
+        ),
+      )
+      seriesBooks.forEach { item ->
+        add(
+          BookOverviewRow.Book(
+            id = item.id,
+            item = mutableStateOf(item),
+          ),
+        )
+      }
+      add(BookOverviewRow.SeriesFooter(matchKey = "harry potter"))
+      add(
+        BookOverviewRow.Book(
+          id = standalone.id,
+          item = mutableStateOf(standalone),
+        ),
+      )
+    }
+  }
 }

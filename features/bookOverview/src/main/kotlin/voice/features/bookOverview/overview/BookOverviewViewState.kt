@@ -6,8 +6,26 @@ import voice.core.data.BookId
 import voice.features.bookOverview.search.BookSearchViewState
 
 @Immutable
+sealed interface BookOverviewRow {
+  data class SeriesHeader(
+    val series: String,
+    val matchKey: String,
+    val bookCount: Int,
+  ) : BookOverviewRow
+
+  data class Book(
+    val id: BookId,
+    val item: State<BookOverviewItemViewState>,
+  ) : BookOverviewRow
+
+  data class SeriesFooter(
+    val matchKey: String,
+  ) : BookOverviewRow
+}
+
+@Immutable
 data class BookOverviewViewState(
-  val books: Map<BookOverviewCategory, Map<BookId, State<BookOverviewItemViewState>>>,
+  val books: Map<BookOverviewCategory, List<BookOverviewRow>>,
   val layoutMode: BookOverviewLayoutMode,
   val playButtonState: PlayButtonState?,
   val showAddBookHint: Boolean,
