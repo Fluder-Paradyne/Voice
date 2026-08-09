@@ -9,10 +9,14 @@ import java.time.Instant
 import kotlin.uuid.Uuid
 
 fun book(
+  name: String = Uuid.random().toString(),
+  id: BookId = BookId(Uuid.random().toString()),
+  series: String? = null,
+  part: String? = null,
+  lastPlayedAt: Instant = Instant.EPOCH,
   chapters: List<Chapter> = listOf(chapter(), chapter()),
   time: Long = 42,
   currentChapter: ChapterId = chapters.first().id,
-  name: String = Uuid.random().toString(),
   author: String? = Uuid.random().toString(),
 ): Book {
   return Book(
@@ -26,14 +30,14 @@ fun book(
       cover = null,
       currentChapter = currentChapter,
       isActive = true,
-      lastPlayedAt = Instant.EPOCH,
+      lastPlayedAt = lastPlayedAt,
       skipSilence = false,
-      id = BookId(Uuid.random().toString()),
+      id = id,
       gain = 0F,
       genre = null,
       narrator = null,
-      series = null,
-      part = null,
+      series = series,
+      part = part,
     ),
     chapters = chapters,
   )
