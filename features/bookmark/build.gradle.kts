@@ -12,4 +12,7 @@ dependencies {
   implementation(projects.navigation)
   implementation(projects.core.data.api)
   implementation(projects.core.featureflag)
+
+  testImplementation(libs.bundles.testing.jvm)
+  testImplementation(libs.molecule)
 }

@@ -65,11 +65,12 @@ class BookmarkViewModel(
     if (kioskMode) return kioskModeViewState()
 
     LaunchedEffect(bookId) {
-      val book = repo.get(bookId)
-      if (book != null) {
-        bookmarks = bookmarkRepo.bookmarks(book.content)
+      val book = repo.get(bookId) ?: return@LaunchedEffect
+      chapters = book.chapters
+      bookmarkRepo.flow(bookId).collect { loaded ->
+        bookmarks = loaded
+          .filter { bookmark -> book.chapters.any { it.id == bookmark.chapterId } }
           .sortedByDescending { it.addedAt }
-        chapters = book.chapters
       }
     }
     return BookmarkViewState(
