@@ -158,8 +158,7 @@ private fun CaptionTrackRow(
       .clip(shape = RoundedCornerShape(12.dp))
       .semantics { this.selected = selected }
       .clickable(onClick = onClick),
-    headlineContent = {
-      Text(text = label)
-    },
-  )
+  ) {
+    Text(text = label)
+  }
 }
