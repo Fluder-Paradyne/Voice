@@ -17,6 +17,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -193,6 +195,7 @@ internal fun BookmarkItem(
   modifier: Modifier = Modifier,
 ) {
   var expanded by remember { mutableStateOf(false) }
+  val dismissState = rememberSwipeToDismissBoxState()
   SwipeToDismissBox(
     modifier = modifier,
     onDismiss = {
@@ -202,24 +205,27 @@ internal fun BookmarkItem(
     },
     enableDismissFromEndToStart = false,
     backgroundContent = {
-      Box(
-        Modifier
-          .fillMaxSize()
-          .background(Color.Red),
-      ) {
-        Icon(
-          modifier = Modifier
-            .padding(start = 16.dp)
-            .align(Alignment.CenterStart),
-          imageVector = VoiceIcons.Delete,
-          contentDescription = stringResource(id = StringsR.string.common_action_delete),
-          tint = Color.White,
-        )
+      if (dismissState.dismissDirection != SwipeToDismissBoxValue.Settled) {
+        Box(
+          Modifier
+            .fillMaxSize()
+            .background(Color.Red),
+        ) {
+          Icon(
+            modifier = Modifier
+              .padding(start = 16.dp)
+              .align(Alignment.CenterStart),
+            imageVector = VoiceIcons.Delete,
+            contentDescription = stringResource(id = StringsR.string.common_action_delete),
+            tint = Color.White,
+          )
+        }
       }
     },
-    state = rememberSwipeToDismissBoxState(),
+    state = dismissState,
     content = {
       ListItem(
+        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
           .clickable {
             onClick(bookmark.id)
