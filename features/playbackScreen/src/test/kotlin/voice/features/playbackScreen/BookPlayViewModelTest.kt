@@ -5,6 +5,7 @@ import app.cash.molecule.launchMolecule
 import app.cash.turbine.test
 import io.mockk.Runs
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -26,6 +27,7 @@ import voice.core.data.Chapter
 import voice.core.data.ChapterId
 import voice.core.data.KioskModeDemoData
 import voice.core.data.MarkData
+import voice.core.data.repo.BookmarkRepo
 import voice.core.data.sleeptimer.SleepTimerPreference
 import voice.core.featureflag.MemoryFeatureFlag
 import voice.core.playback.CurrentBookResolver
@@ -39,6 +41,8 @@ import voice.core.sleeptimer.SleepTimerMode
 import voice.core.sleeptimer.SleepTimerMode.TimedWithDuration
 import voice.core.sleeptimer.SleepTimerState
 import voice.features.sleepTimer.SleepTimerViewState
+import voice.navigation.Destination
+import voice.navigation.Navigator
 import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -81,6 +85,18 @@ class BookPlayViewModelTest {
   private val currentBookResolver = mockk<CurrentBookResolver> {
     coEvery { book(book.id) } returns book
   }
+  private val navigator = mockk<Navigator>(relaxUnitFun = true)
+  private val bookmarkRepository = mockk<BookmarkRepo> {
+    coEvery { addBookmarkAtBookPosition(any(), any(), any()) } returns Bookmark(
+      bookId = book.id,
+      chapterId = book.currentChapter.id,
+      addedAt = Instant.now(),
+      setBySleepTimer = false,
+      id = Bookmark.Id(Uuid.random()),
+      time = 0L,
+      title = null,
+    )
+  }
   private val viewModel = BookPlayViewModel(
     bookRepository = mockk {
       coEvery { get(book.id) } returns book
@@ -95,18 +111,8 @@ class BookPlayViewModelTest {
     sleepTimer = sleepTimer,
     playStateManager = playStateManager,
     currentBookStoreId = currentBookStoreId,
-    navigator = mockk(),
-    bookmarkRepository = mockk {
-      coEvery { addBookmarkAtBookPosition(book, any(), any()) } returns Bookmark(
-        bookId = book.id,
-        chapterId = book.currentChapter.id,
-        addedAt = Instant.now(),
-        setBySleepTimer = true,
-        id = Bookmark.Id(Uuid.random()),
-        time = 0L,
-        title = null,
-      )
-    },
+    navigator = navigator,
+    bookmarkRepository = bookmarkRepository,
     volumeGainFormatter = mockk(),
     batteryOptimization = mockk(),
     sleepTimerPreferenceStore = sleepTimerDataStore,
@@ -116,6 +122,33 @@ class BookPlayViewModelTest {
     experimentalPlaybackPersistenceFeatureFlag = MemoryFeatureFlag(false),
     kioskModeFeatureFlag = MemoryFeatureFlag(false),
   )
+
+  @Test
+  fun `clicking bookmark adds one at the current position`() = scope.runTest {
+    viewModel.viewEffects.test {
+      viewModel.onBookmarkClick()
+      yield()
+
+      coVerify(exactly = 1) {
+        bookmarkRepository.addBookmarkAtBookPosition(
+          book = book,
+          title = null,
+          setBySleepTimer = false,
+        )
+      }
+      assertEquals(BookPlayViewEffect.BookmarkAdded, awaitItem())
+      verify(exactly = 0) { navigator.goTo(any()) }
+    }
+  }
+
+  @Test
+  fun `long clicking bookmark opens the bookmark list`() = scope.runTest {
+    viewModel.onBookmarkLongClick()
+    yield()
+
+    verify(exactly = 1) { navigator.goTo(Destination.Bookmarks(book.id)) }
+    coVerify(exactly = 0) { bookmarkRepository.addBookmarkAtBookPosition(any(), any(), any()) }
+  }
 
   @Test
   fun sleepTimerValueChanging() = scope.runTest {

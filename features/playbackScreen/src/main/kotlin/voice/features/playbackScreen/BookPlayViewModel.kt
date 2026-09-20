@@ -339,10 +339,6 @@ class BookPlayViewModel(
   }
 
   fun onBookmarkClick() {
-    navigator.goTo(Destination.Bookmarks(bookId))
-  }
-
-  fun onBookmarkLongClick() {
     scope.launch {
       val book = currentBook() ?: return@launch
       bookmarkRepository.addBookmarkAtBookPosition(
@@ -352,6 +348,10 @@ class BookPlayViewModel(
       )
       viewEffects.tryEmit(BookPlayViewEffect.BookmarkAdded)
     }
+  }
+
+  fun onBookmarkLongClick() {
+    navigator.goTo(Destination.Bookmarks(bookId))
   }
 
   fun seekTo(position: Duration) {
