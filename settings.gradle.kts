@@ -9,6 +9,7 @@ FeaturePreviews.Feature.entries.forEach { feature ->
     FeaturePreviews.Feature.TYPESAFE_PROJECT_ACCESSORS,
     FeaturePreviews.Feature.STABLE_CONFIGURATION_CACHE,
     FeaturePreviews.Feature.NO_IMPLICIT_LOOKUP_IN_PARENT_PROJECTS,
+    FeaturePreviews.Feature.ENHANCED_GRAPH_ORDERING,
       -> true
     FeaturePreviews.Feature.GROOVY_COMPILATION_AVOIDANCE,
     FeaturePreviews.Feature.INTERNAL_BUILD_SERVICE_USAGE,
@@ -40,12 +41,12 @@ dependencyResolutionManagement {
 }
 
 plugins {
-  id("com.gradle.develocity") version "4.5.0"
+  id("com.gradle.develocity") version "4.5.1"
   id("org.gradle.toolchains.foojay-resolver-convention") version ("1.0.0")
-  id("org.jetbrains.kotlin.android") version "2.4.10" apply false
-  id("org.jetbrains.kotlin.jvm") version "2.4.10" apply false
-  id("com.android.application") version "9.3.1" apply false
-  id("com.android.library") version "9.3.1" apply false
+  id("org.jetbrains.kotlin.android") version "2.4.20" apply false
+  id("org.jetbrains.kotlin.jvm") version "2.4.20" apply false
+  id("com.android.application") version "9.4.1" apply false
+  id("com.android.library") version "9.4.1" apply false
 }
 
 develocity {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="book.category.action.mark_completed">Merkitse valmiiksi</string>
-    <string name="book.category.action.mark_current">Merkitse nykyseksi</string>
+    <string name="book.category.action.mark_current">Merkitse nykyiseksi</string>
     <string name="book.category.action.mark_not_started">Merkitse ei vielä aloitetuksi</string>
     <string name="book.delete.bottom_sheet.title">Poista kirja</string>
     <string name="book.delete.dialog.confirm_files">Poista tiedostoni</string>
@@ -29,7 +29,7 @@
     <string name="common.error.generic.retry">Yritä uudelleen</string>
     <string name="cover.content_description.selectable">Näyttää kannen jonka valita</string>
     <string name="cover.search.author.content_description">Tekijä</string>
-    <string name="cover.search.query.with_author">Tekijän %2$s äänikirjan kansi %1$s</string>
+    <string name="cover.search.query.with_author">Tekijän %2$s äänikirjan %1$s kansi</string>
     <string name="cover.search.query.without_author">%s äänikirjan kansi</string>
     <string name="cover.search.recent.content_description">Viimeisin haku</string>
     <string name="cover.title">Kansi</string>
@@ -38,24 +38,24 @@
         <item quantity="other">%d minuuttia</item>
     </plurals>
     <plurals name="duration.seconds">
-        <item quantity="one">%d sekuntti</item>
-        <item quantity="other">%d sekunttia</item>
+        <item quantity="one">%d sekunti</item>
+        <item quantity="other">%d sekuntia</item>
     </plurals>
     <string name="folder.add.title.default">Lisää äänikirjasi</string>
     <string name="folder.add.title.onboarding">Lisää ensimmäinen äänikirjasi</string>
     <string name="folder.add.type.file">Tiedosto</string>
     <string name="folder.add.type.folder">Kansio</string>
-    <string name="folder.add.type.subtitle">Haluaisitko lisätä yksittäisen tietoston kirjana vai kansiona?</string>
+    <string name="folder.add.type.subtitle">Haluatko lisätä yksittäisen kirjan tiedostona vai kansiona?</string>
     <string name="folder.mode.author.title">Tekijä-Kirja-tila: Alikansiot ovat tekijöitä, ali-alikansiot ovat kirjoja.</string>
     <string name="folder.mode.root.title">Ylätasokirjatila: Alikansiot ovat kirjoja</string>
     <string name="folder.mode.single.title">Yksittäisten kirjojen tila: Yksi kansio on yhtä kuin yksi kirja.</string>
-    <string name="folder.type.book_example.empty">Voice ei havainnut mitään kirjoja. Onko äänitiedostoja olemassa?</string>
+    <string name="folder.type.book_example.empty">Voice ei havainnut yhtään kirjaa. Onko äänitiedostoja olemassa?</string>
     <string name="folder.type.book_example.header">Tämä johtaisi seuraavien kirjojen havaitsemiseen</string>
     <plurals name="folder.type.file_count">
         <item quantity="one">%d äänitiedosto</item>
         <item quantity="other">%d äänitiedostoa</item>
     </plurals>
-    <string name="folder.type.title">Miten tiedostosi ovat järjestelty?</string>
+    <string name="folder.type.title">Miten tiedostosi on järjestelty?</string>
     <string name="library.category.completed.title">Valmiina</string>
     <string name="library.category.current.title">Nykyinen</string>
     <string name="library.category.not_started.title">Ei vielä aloitettu</string>
@@ -75,7 +75,7 @@
     <string name="onboarding.analytics_consent.action.privacy_policy">Tietosuojakäytäntö</string>
     <string name="onboarding.analytics_consent.description">Salli meidän kerätä anonyymejä käyttötietoja sovelluksen parantamiseksi. Voit muuttaa tätä myöhemmin asetuksissa.</string>
     <string name="onboarding.analytics_consent.title">Auta parantamaan Voicea</string>
-    <string name="onboarding.completion.action.start_listening">Aloita kuuntelemaan</string>
+    <string name="onboarding.completion.action.start_listening">Aloita kuunteleminen</string>
     <string name="onboarding.completion.subtitle">Ensimmäinen äänikirjasi on valmiina kuunneltavaksi. Nauti matkastasi Voicen kanssa!</string>
     <string name="onboarding.completion.title">Olet valmiina!</string>
     <string name="onboarding.explanation.subtitle">Voicella voit lisätä kirjoja yksittäisinä tiedostoina tai järjestellä ne kansioissa. Sinä saat valita!</string>
@@ -88,11 +88,11 @@
     <string name="playback.action.play_pause">Toisto / Tauko</string>
     <string name="playback.action.rewind">Takaisinkelaus</string>
     <string name="playback.battery_optimization.action">Päivitä</string>
-    <string name="playback.battery_optimization.rationale">Laitteesi virtarajoitusten takija äänentoisto voi katkeilla.</string>
+    <string name="playback.battery_optimization.rationale">Virrankäyttörajoitusten vuoksi äänentoisto saattaa keskeytyä.</string>
     <string name="playback.chapter.current.content_description">Nykyinen luku</string>
     <string name="playback.chapter.next">Seuraava ääniraita</string>
     <string name="playback.chapter.previous">Edellinen ääniraita</string>
-    <string name="playback.option.skip_silence">Ohita Hiljaisuus</string>
+    <string name="playback.option.skip_silence">Ohita hiljaisuus</string>
     <string name="playback.option.volume_boost">Äänenvoimakkuuden tehostus</string>
     <string name="playback.speed.title">Toiston nopeus</string>
     <string name="review.feedback.action.cancel">Peruuta</string>
@@ -122,13 +122,13 @@
     <string name="settings.library.folders.summary">Hallitse kansioita, joista etsitään äänikirjoja</string>
     <string name="settings.library.use_grid.title">Käytä ruudukkoasettelua</string>
     <string name="settings.playback.auto_rewind.title">Automaattinen takaisinkelaus</string>
-    <string name="settings.playback.seek_time.title">Ohita määrä</string>
+    <string name="settings.playback.seek_time.title">Siirtymän pituus</string>
     <string name="settings.support.faq.title">UKK</string>
-    <string name="settings.support.get_support.title">Hanki tukea</string>
+    <string name="settings.support.get_support.title">Hanki apua</string>
     <string name="settings.support.help_translating.title">Auta kääntämään Voicea</string>
     <string name="settings.support.report_issue.title">Ilmoita ongelmasta</string>
     <string name="settings.support.suggest_idea.title">Ehdota ideaa</string>
-    <string name="settings.support.support_voice.summary">Lahjoitukset auttavat pitämään Voicen yllä</string>
+    <string name="settings.support.support_voice.summary">Lahjoitukset auttavat Voicen ylläpidossa</string>
     <string name="settings.support.support_voice.title">Tue kehitystä</string>
     <string name="support.action.donate_kofi">Lahjoita Ko-fissa</string>
     <string name="support.description.maintenance">Voice on ilmainen avoimen lähdekoodin sovellus, jota ylläpitää yksi kehittäjä.</string>
@@ -139,9 +139,9 @@
     <string name="support.helps.open_source">Pidetään Voice mainoksettomana</string>
     <string name="support.title">Tue kehitystä</string>
     <string name="shortcut.play_current.short_label">Toista nykyinen</string>
-    <string name="sleep_timer.action.open">Uni-ajastin</string>
-    <string name="sleep_timer.dialog.action.decrement">Lyhyempään</string>
-    <string name="sleep_timer.dialog.action.increment">Pidempään</string>
+    <string name="sleep_timer.action.open">Uniajastin</string>
+    <string name="sleep_timer.dialog.action.decrement">Lyhennä</string>
+    <string name="sleep_timer.dialog.action.increment">Pidennä</string>
     <string name="sleep_timer.dialog.title">Hyviä unia! 🌙</string>
     <string name="sleep_timer.end_of_chapter">Luvun loppu</string>
 </resources>
