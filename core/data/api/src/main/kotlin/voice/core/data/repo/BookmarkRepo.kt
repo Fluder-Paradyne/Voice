@@ -1,7 +1,9 @@
 package voice.core.data.repo
 
+import kotlinx.coroutines.flow.Flow
 import voice.core.data.Book
 import voice.core.data.BookContent
+import voice.core.data.BookId
 import voice.core.data.Bookmark
 
 public interface BookmarkRepo {
@@ -17,4 +19,6 @@ public interface BookmarkRepo {
   ): Bookmark
 
   public suspend fun bookmarks(book: BookContent): List<Bookmark>
+
+  public fun flow(bookId: BookId): Flow<List<Bookmark>>
 }

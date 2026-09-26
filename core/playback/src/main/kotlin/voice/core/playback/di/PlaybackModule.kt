@@ -10,8 +10,10 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.extractor.DefaultExtractorsFactory
+import android.os.Bundle
 import androidx.media3.session.CommandButton
 import androidx.media3.session.MediaLibraryService
+import androidx.media3.session.SessionCommand
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -28,6 +30,7 @@ import voice.core.playback.player.VoicePlayer
 import voice.core.playback.player.onAudioSessionIdChanged
 import voice.core.playback.playstate.PlayStateDelegatingListener
 import voice.core.playback.playstate.PositionUpdater
+import voice.core.playback.session.CustomCommand
 import voice.core.playback.session.LibrarySessionCallback
 import voice.core.playback.session.PlaybackService
 import voice.core.strings.R as StringsR
@@ -117,6 +120,11 @@ interface PlaybackModule {
             .setDisplayName(context.getString(StringsR.string.playback_action_fast_forward))
             .setPlayerCommand(Player.COMMAND_SEEK_FORWARD)
             .setSlots(CommandButton.SLOT_FORWARD)
+            .build(),
+          CommandButton.Builder(CommandButton.ICON_BOOKMARK_UNFILLED)
+            .setDisplayName(context.getString(StringsR.string.bookmark_title))
+            .setSessionCommand(SessionCommand(CustomCommand.ADD_BOOKMARK_ACTION, Bundle.EMPTY))
+            .setSlots(CommandButton.SLOT_OVERFLOW)
             .build(),
         ),
       )

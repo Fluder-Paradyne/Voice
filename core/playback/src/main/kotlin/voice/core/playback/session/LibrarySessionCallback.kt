@@ -43,6 +43,7 @@ class LibrarySessionCallback(
   @CurrentBookStore
   private val currentBookStoreId: DataStore<BookId?>,
   private val bookRepository: BookRepository,
+  private val addBookmarkAtCurrentPosition: AddBookmarkAtCurrentPosition,
 ) : MediaLibrarySession.Callback {
 
   override fun onAddMediaItems(
@@ -178,6 +179,7 @@ class LibrarySessionCallback(
     val sessionCommands = connectionResult.availableSessionCommands
       .buildUpon()
       .add(SessionCommand(CustomCommand.CUSTOM_COMMAND_ACTION, Bundle.EMPTY))
+      .add(SessionCommand(CustomCommand.ADD_BOOKMARK_ACTION, Bundle.EMPTY))
       .build()
     return ConnectionResult.accept(
       sessionCommands,
@@ -213,6 +215,12 @@ class LibrarySessionCallback(
       }
       is CustomCommand.SetGain -> {
         player.setGain(command.gain)
+      }
+      CustomCommand.AddBookmark -> {
+        return scope.future {
+          addBookmarkAtCurrentPosition.add()
+          SessionResult(SessionResult.RESULT_SUCCESS)
+        }
       }
     }
 

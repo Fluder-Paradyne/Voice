@@ -4,9 +4,11 @@ import androidx.room.RoomDatabase
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import voice.core.data.Book
 import voice.core.data.BookContent
+import voice.core.data.BookId
 import voice.core.data.Bookmark
 import voice.core.data.repo.internals.dao.BookmarkDao
 import voice.core.data.repo.internals.transaction
@@ -57,5 +59,9 @@ internal constructor(
         dao.allForChapters(it)
       }
     }
+  }
+
+  override fun flow(bookId: BookId): Flow<List<Bookmark>> {
+    return dao.allForBook(bookId)
   }
 }

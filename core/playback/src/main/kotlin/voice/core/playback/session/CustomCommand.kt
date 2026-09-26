@@ -22,14 +22,21 @@ internal sealed interface CustomCommand {
   @Serializable
   data class SetGain(val gain: Decibel) : CustomCommand
 
+  @Serializable
+  data object AddBookmark : CustomCommand
+
   companion object {
 
     const val CUSTOM_COMMAND_ACTION = "voiceCommandAction"
+    const val ADD_BOOKMARK_ACTION = "voiceAddBookmark"
     internal const val CUSTOM_COMMAND_EXTRA = "voiceCommandExtra"
     internal fun parse(
       command: SessionCommand,
       args: Bundle,
     ): CustomCommand? {
+      if (command.customAction == ADD_BOOKMARK_ACTION) {
+        return AddBookmark
+      }
       if (command.customAction != CUSTOM_COMMAND_ACTION) {
         return null
       }
